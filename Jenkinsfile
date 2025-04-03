@@ -1,14 +1,5 @@
 pipeline {
     agent any
-    stages {
-        stage('Test') {
-            steps {
-                echo "Hello, Jenkins!"
-           d}
-        
-    }
-}pipeline {
-    agent any
     
     tools {
         maven 'Maven-3.6.3' // Tên tool Maven đã cấu hình trong Jenkins
@@ -99,3 +90,6 @@ def detectChangedServices() {
     }
     return changedServices
 }
+}
+
+
