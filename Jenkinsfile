@@ -71,25 +71,49 @@ pipeline {
     }
 }
 
-// Hàm phát hiện service thay đổi (sẽ triển khai chi tiết ở phần 6)
 def detectChangedServices() {
     def changedServices = []
+    
+    // Lấy danh sách thay đổi từ Git
     def changeLogSets = currentBuild.changeSets
-    for (changeLog in changeLogSets) {
-        for (entry in changeLog.items) {
-            for (file in entry.affectedFiles) {
-                def path = file.path
-                if (path.contains('/')) {
-                    def service = path.split('/')[0]
-                    if (!changedServices.contains(service)) {
-                        changedServices.add(service)
-                    }
+    for (int i = 0; i < changeLogSets.size(); i++) {
+        def entries = changeLogSets[i].items
+        for (int j = 0; j < entries.length; j++) {
+            def entry = entries[j]
+            def files = new ArrayList(entry.affectedFiles)
+            for (int k = 0; k < files.size(); k++) {
+                def file = files[k]
+                def filePath = file.path
+                
+                // Xác định service từ path file thay đổi
+                def service = determineServiceFromPath(filePath)
+                if (service && !changedServices.contains(service)) {
+                    changedServices.add(service)
                 }
             }
         }
     }
+    
     return changedServices
 }
+
+def determineServiceFromPath(String filePath) {
+    // Danh sách các service trong project
+    def services = [
+        'api-gateway',
+        'config-server',
+        'customers-service',
+        'discovery-server',
+        'vets-service',
+        'visits-service'
+    ]
+    
+    // Kiểm tra file thuộc service nào
+    for (service in services) {
+        if (filePath.startsWith(service + '/')) {
+            return service
+        }
+    }
+    
+    return null
 }
-
-
