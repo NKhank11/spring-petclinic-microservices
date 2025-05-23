@@ -22,7 +22,7 @@ pipeline {
         GITHUB_CREDENTIALS_ID = 'github_pat'
         GKE_CREDENTIALS_ID = 'gke_credentials'
         DOCKER_HUB_CREDENTIALS_ID = 'dockerhub_credentials'
-        GITHUB_REPO_URL = 'https://github.com/nkhank11/spring-petclinic-microservices.git'
+        GITHUB_REPO_URL = 'https://github.com/NKhank11/spring-petclinic-microservices.git'
     }
     stages {
         stage('Clone Code') {
