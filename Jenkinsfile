@@ -11,7 +11,7 @@ def VALID_SERVICES = [
 def AFFECTED_SERVICES = ''
 
 pipeline {
-    agent any
+    agent { node { label 'worker' } }
 
     tools {
         maven 'Maven-3.9.4'
