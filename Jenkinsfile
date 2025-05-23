@@ -19,11 +19,11 @@ pipeline {
     }
 
     environment {
-        DOCKER_REGISTRY = 'anhkhoa217'
+        DOCKER_REGISTRY = 'nkhank11'
         GITHUB_CREDENTIALS_ID = 'github_pat'
         GKE_CREDENTIALS_ID = 'gke_credentials'
         DOCKER_HUB_CREDENTIALS_ID = 'dockerhub_credentials'
-        GITHUB_REPO_URL = 'https://github.com/kiin21/spring-petclinic-microservices.git'
+        GITHUB_REPO_URL = 'https://github.com/NKhank11/spring-petclinic-microservices.git'
     }
 
     stages {
