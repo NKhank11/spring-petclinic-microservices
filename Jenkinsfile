@@ -27,6 +27,12 @@ pipeline {
     }
 
     stages {
+        stage('Check user and groups') {
+            steps {
+                sh 'whoami'
+                sh 'groups'
+            }
+        }
         stage('Clone Code') {
             steps {
                 script {
