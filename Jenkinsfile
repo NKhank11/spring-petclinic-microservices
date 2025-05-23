@@ -113,6 +113,9 @@ pipeline {
         }
 
         stage('Build and Push Docker Images') {
+            agent { 
+                label 'worker' // Force run on worker node that has Docker access
+            }
             when {
                 expression { return AFFECTED_SERVICES != '' || env.TAG_NAME != null }
             }
