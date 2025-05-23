@@ -147,7 +147,7 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: GITHUB_CREDENTIALS_ID, usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         sh '''
-                            git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.com/kiin21/petclinic-gitops.git k8s
+                            git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.com/nkhank11/petclinic-gitops.git k8s
                             cd k8s
                             git config user.name "Jenkins"
                             git config user.email "jenkins@example.com"
