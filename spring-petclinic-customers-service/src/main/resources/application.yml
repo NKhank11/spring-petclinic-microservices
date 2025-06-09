@@ -4,7 +4,6 @@ spring:
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
 
-
 ---
 spring:
   config:
@@ -13,10 +12,44 @@ spring:
     import: configserver:http://config-server:8888
 
 ---
+# Cấu hình cho Observability
 management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+    tags:
+      application: ${spring.application.name}
+  
+  # Cấu hình tracing
   tracing:
     sampling:
       probability: 1.0
   zipkin:
     tracing:
-      endpoint: http://34.59.140.254/api/v2/spans
+      endpoint: http://zipkin.tracing.svc.cluster.local:9411/api/v2/spans
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.cloud.sleuth: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+  appender:
+    loki:
+      url: http://loki.observability.svc.cluster.local:3100/loki/api/v1/push
