@@ -52,7 +52,7 @@ pipeline {
         }
 
         stage('Detect Changes') {
-            steps {
+            steps  {
                 script {
                     def affectedServices = []
                     // Check for tag build first
