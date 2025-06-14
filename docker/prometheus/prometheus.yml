@@ -14,19 +14,19 @@ scrape_configs:
 - job_name: api-gateway
   metrics_path: /actuator/prometheus
   static_configs:
-  - targets: ['api-gateway:8080']
+  - targets: ['api-gateway.dev.svc.cluster.local:8080']
 
 - job_name: customers-service
   metrics_path: /actuator/prometheus
   static_configs:
-  - targets: ['customers-service:8081']
+  - targets: ['customers-service.dev.svc.cluster.local:8081']
 
 - job_name: visits-service
   metrics_path: /actuator/prometheus
   static_configs:
-  - targets: ['visits-service:8082']
+  - targets: ['visits-service.dev.svc.cluster.local:8082']
 
 - job_name: vets-service
   metrics_path: /actuator/prometheus
   static_configs:
-  - targets: ['vets-service:8083']
+  - targets: ['vets-service.dev.svc.cluster.local:8083']
