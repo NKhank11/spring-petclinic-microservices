@@ -12,7 +12,7 @@ spring:
     import: configserver:http://config-server:8888
 
 ---
-# Cấu hình cho Observability
+# 📊 Observability
 management:
   endpoints:
     web:
@@ -21,10 +21,6 @@ management:
   endpoint:
     health:
       show-details: always
-    metrics:
-      enabled: true
-    prometheus:
-      enabled: true
   metrics:
     export:
       prometheus:
@@ -34,15 +30,19 @@ management:
         http.server.requests: true
     tags:
       application: ${spring.application.name}
-  
-  # Cấu hình tracing
-  tracing:
-    sampling:
+  prometheus:
+    enabled: true
+
+# 🔍 Tracing
+spring:
+  sleuth:
+    sampler:
       probability: 1.0
   zipkin:
-    tracing:
-      endpoint: http://zipkin.tracing.svc.cluster.local:9411/api/v2/spans
+    base-url: http://tracing-server:9411  # đúng với tên service trong Helm/k8s
+    enabled: true
 
+# 📄 Logging - Loki (nếu đang dùng)
 logging:
   level:
     org.springframework.web: DEBUG
@@ -52,4 +52,4 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
   appender:
     loki:
-      url: http://loki.observability.svc.cluster.local:3100/loki/api/v1/push
+      url: http://loki-server:3100/loki/api/v1/push
