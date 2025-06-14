@@ -45,7 +45,7 @@ management:
       probability: 1.0  # Sample 100% của requests cho testing
   zipkin:
     tracing:
-      endpoint: ${ZIPKIN_URL:http://zipkin:9411}/api/v2/spans
+      endpoint: ${ZIPKIN_URL:http://34.172.156.249:9411}/api/v2/spans
 
 ---
 # 📄 Logging Configuration
