@@ -3,14 +3,12 @@ spring:
     name: customers-service
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
-
 ---
 spring:
   config:
     activate:
       on-profile: docker
     import: configserver:http://config-server:8888
-
 ---
 # 📊 Observability & Metrics
 management:
@@ -35,8 +33,7 @@ management:
       probability: 1.0  # Sample 100% of traces (chỉ dùng cho dev/test)
   zipkin:
     tracing:
-      endpoint: ${ZIPKIN_URL:http://zipkin:9411}/api/v2/spans
-
+      endpoint: ${ZIPKIN_URL:http://34.172.156.249:9411}/api/v2/spans
 ---
 # 🔍 Tracing Configuration (Micrometer Tracing - Spring Boot 3.x)
 management:
@@ -46,7 +43,6 @@ management:
   zipkin:
     tracing:
       endpoint: ${ZIPKIN_URL:http://34.172.156.249:9411}/api/v2/spans
-
 ---
 # 📄 Logging Configuration
 logging:
