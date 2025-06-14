@@ -5,6 +5,7 @@ spring:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
 
 ---
+
 spring:
   config:
     activate:
@@ -12,6 +13,7 @@ spring:
     import: configserver:http://config-server:8888
 
 ---
+
 # 📊 Observability
 management:
   endpoints:
@@ -33,14 +35,18 @@ management:
   prometheus:
     enabled: true
 
+---
+
 # 🔍 Tracing
 spring:
   sleuth:
     sampler:
       probability: 1.0
   zipkin:
-    base-url: http://tracing-server:9411  # đúng với tên service trong Helm/k8s
+    base-url: http://34.172.156.249:9411
     enabled: true
+
+---
 
 # 📄 Logging - Loki (nếu đang dùng)
 logging:
