@@ -39,12 +39,14 @@ management:
 
 # 🔍 Tracing
 spring:
+  application:
+    name: customers-service
+  zipkin:
+    base-url: http://zipkin:9411
+    enabled: true
   sleuth:
     sampler:
       probability: 1.0
-  zipkin:
-    base-url: http://34.172.156.249:9411
-    enabled: true
 
 ---
 
