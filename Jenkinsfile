@@ -26,7 +26,7 @@ pipeline {
         MANIFEST_REPO = 'github.com/NKhank11/petclinic-gitops.git'
     }
     stages {
-        stage('Clone Code') {
+        stage('Clone Code ') {
             steps {
                 script {
                     checkout([
