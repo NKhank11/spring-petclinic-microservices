@@ -27,7 +27,7 @@ pipeline {
         AFFECTED_INFRA_COMPONENTS = ''
     }
     stages {
-        stage('Clone Code ') {
+        stage('Clone Code') {
             steps {
                 script {
                     checkout([
