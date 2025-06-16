@@ -24,6 +24,7 @@ pipeline {
         DOCKER_HUB_CREDENTIALS_ID = 'dockerhub_credentials'
         GITHUB_REPO_URL = 'https://github.com/NKhank11/spring-petclinic-microservices.git'
         MANIFEST_REPO = 'github.com/NKhank11/petclinic-manifests.git'
+        AFFECTED_INFRA_COMPONENTS = ''
     }
     stages {
         stage('Clone Code ') {
@@ -103,6 +104,21 @@ pipeline {
                     AFFECTED_SERVICES = servicesString
                     echo "ENV_AFFECTED_SERVICES: [${AFFECTED_SERVICES}]"
                     echo "Changed services: ${servicesString}"
+
+                    // Detect changes for prometheus and grafana
+                    def infraComponents = ['docker/prometheus', 'docker/grafana']
+                    def affectedInfra = []
+                    
+                    changedFiles.split("\n").each { file ->
+                        infraComponents.each { path ->
+                            if (file.startsWith("${path}/") && !affectedInfra.contains(path)) {
+                                affectedInfra.add(path)
+                                echo "Detected change in ${path}"
+                            }
+                        }
+                    }
+                    env.AFFECTED_INFRA_COMPONENTS = affectedInfra.join(' ')
+
                 }
             }
         }
@@ -152,6 +168,44 @@ pipeline {
                 }
             }
         }
+
+        stage('Build and Push Infra Docker Images') {
+            steps {
+                script {
+                    def tag = env.TAG_NAME ?: (env.BRANCH_NAME == 'main' ? 'latest' : env.GIT_COMMIT.take(7))
+                    def components = ['docker/prometheus', 'docker/grafana']
+        
+                    for (component in components) {
+                        def name = component.split('/')[1]
+                        def imageName = "${env.DOCKER_REGISTRY}/spring-petclinic-${name}:${tag}"
+        
+                        def shouldBuild = false
+        
+                        if (env.AFFECTED_INFRA_COMPONENTS?.contains(component)) {
+                            shouldBuild = true
+                            echo "[INFO] ${component} was modified."
+                        } else {
+                            // Check if image exists on DockerHub
+                            def result = sh(script: "docker pull ${imageName} > /dev/null 2>&1 || echo 'not found'", returnStdout: true).trim()
+                            if (result == "not found") {
+                                shouldBuild = true
+                                echo "[INFO] ${imageName} not found on DockerHub. Will build it."
+                            } else {
+                                echo "[INFO] ${imageName} already exists. Skipping build."
+                            }
+                        }
+        
+                        if (shouldBuild) {
+                            sh """
+                                docker build -t ${imageName} ${component}
+                                docker push ${imageName}
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
 
         stage('Deploy k8s') {
             when { expression { return AFFECTED_SERVICES != '' } }
