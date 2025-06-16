@@ -170,6 +170,9 @@ pipeline {
         }
 
         stage('Build and Push Infra Docker Images') {
+            when {
+                expression { return env.TAG_NAME == null }
+            }            
             steps {
                 script {
                     def tag = env.TAG_NAME ?: (env.BRANCH_NAME == 'main' ? 'latest' : env.GIT_COMMIT.take(7))
