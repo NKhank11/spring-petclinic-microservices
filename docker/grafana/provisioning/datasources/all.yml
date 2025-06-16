@@ -11,3 +11,19 @@ datasources:
   is_default: true
   version: 1
   editable: true
+  
+- name: Loki
+  type: loki
+  access: proxy
+  org_id: 1
+  url: http://loki-server:3100
+  version: 1
+  editable: true
+  jsonData:
+    derivedFields:
+    - datasourceUid: zipkin
+      matcherType: label
+      matcherRegex: traceId
+      name: TraceID
+      url: "$${__value.raw}"
+      openInNewTab: true
