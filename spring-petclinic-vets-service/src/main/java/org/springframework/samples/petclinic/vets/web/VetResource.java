@@ -46,4 +46,9 @@ class VetResource {
     public List<Vet> showResourcesVetList() {
         return vetRepository.findAll();
     }
+
+    @GetMapping("/error")
+    public List<Vet> triggerError() {
+        throw new RuntimeException("Simulated internal server error");
+    }
 }
