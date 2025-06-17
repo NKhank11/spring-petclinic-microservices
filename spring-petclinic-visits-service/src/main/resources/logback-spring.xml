@@ -1,47 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <!-- Lấy tên ứng dụng từ Spring -->
+    <!-- Include config mặc định của Spring Boot -->
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <!-- Cho phép Spring Boot inject giá trị spring.application.name -->
     <springProperty scope="context" name="app" source="spring.application.name"/>
 
-    <!-- Appender: In log ra console -->
+    <!-- Console Appender: hiển thị log ở console -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n</pattern>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level 
+                [traceId=%mdc{traceId:-none}, spanId=%mdc{spanId:-none}] 
+                %logger{36} - %msg%n
+            </pattern>
         </encoder>
     </appender>
 
-    <!-- Appender: Gửi log đến Grafana Loki -->
+    <!-- Loki Appender: gửi log về Loki -->
     <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
         <http>
+            <!-- Đổi URL nếu cần, ví dụ nếu dùng service name trong k8s là loki-server -->
             <url>http://loki:3100/loki/api/v1/push</url>
+            <connectTimeoutMs>1000</connectTimeoutMs>
+            <readTimeoutMs>5000</readTimeoutMs>
         </http>
         <format>
             <label>
-                <pattern>app=${app:-unknown},level=%level,instance=${HOSTNAME:-unknown}</pattern>
+                <!-- Nhãn cho log, dùng để filter trên Grafana -->
+                <pattern>
+                    app=${app:-unknown},
+                    level=%level,
+                    instance=${HOSTNAME:-unknown}
+                </pattern>
+                <!-- Structured metadata để Grafana sử dụng khi trace log -->
+                <structuredMetadataPattern>
+                    level=%level,
+                    thread=%thread,
+                    logger=%logger,
+                    traceId=%mdc{traceId:-none},
+                    spanId=%mdc{spanId:-none},
+                    pid=${PID:-unknown}
+                </structuredMetadataPattern>
             </label>
             <message>
                 <pattern>
-                    {
-                        "timestamp": "%d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z'}",
-                        "level": "%level",
-                        "thread": "%thread",
-                        "logger": "%logger",
-                        "message": "%msg",
-                        "traceId": "%X{traceId:-}",
-                        "spanId": "%X{spanId:-}",
-                        "service": "${app:-unknown}",
-                        "instance": "${HOSTNAME:-unknown}"
-                    }
+                    %d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z'} [%thread] %-5level 
+                    [traceId=%mdc{traceId:-none}, spanId=%mdc{spanId:-none}] 
+                    %logger{36} - %msg
                 </pattern>
             </message>
         </format>
     </appender>
 
-    <!-- Cấu hình root logger -->
+    <!-- Root Logger: log INFO trở lên -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="LOKI"/>
     </root>
+
+    <!-- Cho phép chỉnh log level qua JMX -->
+    <jmxConfigurator/>
 
 </configuration>
