@@ -3,54 +3,11 @@ spring:
     name: customers-service
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
+
+
 ---
 spring:
   config:
     activate:
       on-profile: docker
     import: configserver:http://config-server:8888
----
-# 📊 Observability & Metrics
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  endpoint:
-    health:
-      show-details: always
-  metrics:
-    export:
-      prometheus:
-        enabled: true
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
-    tags:
-      application: ${spring.application.name}
-  tracing:
-    sampling:
-      probability: 1.0  # Sample 100% of traces (chỉ dùng cho dev/test)
-  zipkin:
-    tracing:
-      endpoint: ${ZIPKIN_URL:http://34.172.156.249:9411}/api/v2/spans
----
-# 🔍 Tracing Configuration (Micrometer Tracing - Spring Boot 3.x)
-management:
-  tracing:
-    sampling:
-      probability: 1.0  # Sample 100% của requests cho testing
-  zipkin:
-    tracing:
-      endpoint: http://zipkin.tracing:9411/api/v2/spans
----
-# 📄 Logging Configuration
-logging:
-  level:
-    org.springframework.web: INFO
-    io.micrometer.tracing: DEBUG
-    io.zipkin.reporter2: DEBUG
-    brave: DEBUG
-  pattern:
-    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [${spring.application.name:},%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n"
