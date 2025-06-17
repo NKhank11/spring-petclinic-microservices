@@ -111,12 +111,6 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- Spring Boot Actuator cho metrics -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
         
         <!-- Micrometer tracing -->
         <dependency>
