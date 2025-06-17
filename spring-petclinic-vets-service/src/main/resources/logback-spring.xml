@@ -10,13 +10,14 @@
     <!-- Appender: In log ra console -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [traceId=%X{traceId:-},spanId=%X{spanId:-}] %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
     <!-- Appender: Gửi log đến Grafana Loki -->
     <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
         <http>
+            <!-- Thay bằng URL thực tế nếu khác -->
             <url>http://loki:3100/loki/api/v1/push</url>
             <connectTimeoutMs>1000</connectTimeoutMs>
             <readTimeoutMs>5000</readTimeoutMs>
@@ -28,23 +29,25 @@
                 <structuredMetadataPattern>
                     thread=%thread,
                     logger=%logger,
+                    level=%level,
                     traceId=%X{traceId:-},
-                    spanId=%X{spanId:-}
+                    spanId=%X{spanId:-},
+                    pid=${PID:-unknown}
                 </structuredMetadataPattern>
             </label>
             <message>
-                <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z'} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg</pattern>
+                <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z'} [%thread] %-5level [traceId=%X{traceId:-},spanId=%X{spanId:-}] %logger{36} - %msg</pattern>
             </message>
         </format>
     </appender>
 
-    <!-- Root logger -->
+    <!-- Root logger: Gửi log ra cả console và Loki -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="LOKI"/>
     </root>
 
-    <!-- Cho phép thay đổi log level qua JMX nếu cần -->
+    <!-- Cho phép thay đổi log level runtime bằng JMX -->
     <jmxConfigurator/>
 
 </configuration>
