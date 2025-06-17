@@ -1,6 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/base.xml"/>
-    <!-- Required for Loglevel managment into the Spring Petclinic Admin Server-->
-    <jmxConfigurator/>
+
+    <!-- Lấy tên ứng dụng từ Spring -->
+    <springProperty scope="context" name="app" source="spring.application.name"/>
+
+    <!-- Appender: In log ra console -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Appender: Gửi log đến Grafana Loki -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>http://loki:3100/loki/api/v1/push</url>
+        </http>
+        <format>
+            <label>
+                <pattern>app=${app:-unknown},level=%level,instance=${HOSTNAME:-unknown}</pattern>
+            </label>
+            <message>
+                <pattern>
+                    {
+                        "timestamp": "%d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z'}",
+                        "level": "%level",
+                        "thread": "%thread",
+                        "logger": "%logger",
+                        "message": "%msg",
+                        "traceId": "%X{traceId:-}",
+                        "spanId": "%X{spanId:-}",
+                        "service": "${app:-unknown}",
+                        "instance": "${HOSTNAME:-unknown}"
+                    }
+                </pattern>
+            </message>
+        </format>
+    </appender>
+
+    <!-- Cấu hình root logger -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LOKI"/>
+    </root>
+
 </configuration>
