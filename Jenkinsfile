@@ -176,7 +176,7 @@ pipeline {
             steps {
                 script {
                     def tag = env.TAG_NAME ?: (env.BRANCH_NAME == 'main' ? 'latest' : env.GIT_COMMIT.take(7))
-                    def components = ['docker/prometheus', 'docker/grafana']
+                    def components = ['docker/prometheus', 'docker/grafana', 'docker/loki']
         
                     for (component in components) {
                         def name = component.split('/')[1]
