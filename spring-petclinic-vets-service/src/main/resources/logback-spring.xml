@@ -1,40 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <!-- Include default Spring Boot logging configuration -->
+    <!-- Include default Spring Boot logging config -->
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <springProperty scope="context" name="appName" source="spring.application.name"/>
+    <!-- Enable log level update via JMX -->
+    <jmxConfigurator/>
 
+    <!-- Get service name from Spring context -->
+    <springProperty scope="context" name="app" source="spring.application.name"/>
+
+    <!-- Loki appender -->
     <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
         <http>
-            <url>http://loki:3100/loki/api/v1/push</url>
-            <connectTimeoutMs>1000</connectTimeoutMs>
-            <readTimeoutMs>5000</readTimeoutMs>
+            <url>http://loki-server:3100/loki/api/v1/push</url>
         </http>
-        <encoder class="com.github.loki4j.logback.JsonEncoder">
-            <labels>
-                app=${appName}, level=%level
-            </labels>
-            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSS</timestampPattern>
-            <customFields>{"traceId":"%X{traceId}","spanId":"%X{spanId}"}</customFields>
-        </encoder>
+        <format>
+            <label>
+                <pattern>
+                    app = ${app:-unknown},
+                    host = ${HOSTNAME:-unknown}
+                </pattern>
+            </label>
+            <message>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [${app}] ${PID:- } --- [%15.15t] %-40.40logger{39} : %m%n</pattern>
+            </message>
+        </format>
     </appender>
 
-    <!-- Console Appender (for local viewing/debugging) -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg [traceId=%X{traceId}, spanId=%X{spanId}]%n</pattern>
-        </encoder>
-    </appender>
-
-    <!-- Root Logger -->
+    <!-- Root logger config -->
     <root level="INFO">
         <appender-ref ref="LOKI"/>
-        <appender-ref ref="CONSOLE"/>
     </root>
-
-    <!-- Enable dynamic config update via JMX -->
-    <jmxConfigurator/>
 
 </configuration>
